@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Repasa Secundaria | 1.º a 5.º</title>
+<meta name="theme-color" content="#0b1020"><meta name="description" content="Plataforma de práctica escolar para repasar áreas de 1.º a 5.º de secundaria."><title>Repasa+ | Secundaria</title>
 <style>
 :root{--bg:#0b1020;--panel:#141c32;--panel2:#1c2743;--text:#f4f7ff;--muted:#aebbd6;--accent:#7c9cff;--green:#59d6a3;--red:#ff7b89;--line:#2b3858}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#18264b 0,#0b1020 55%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
@@ -16,14 +16,19 @@ button,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);bo
 .question-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}.question{font-size:21px;line-height:1.45;margin:17px 0}.answers{display:grid;gap:9px}.answer{text-align:left;font-weight:600}.answer.correct{border-color:var(--green);background:#12392f}.answer.wrong{border-color:var(--red);background:#421e2a}.feedback{padding:12px;border-radius:10px;margin-top:12px;display:none}.feedback.show{display:block}.feedback.good{background:#12392f;color:#b8ffe0}.feedback.bad{background:#421e2a;color:#ffd2d7}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row button{flex:1}.primary{background:var(--accent);color:#081027;border-color:transparent}.secondary{background:transparent}.hidden{display:none!important}.bar{height:8px;background:#0b1224;border-radius:99px;overflow:hidden;margin:10px 0}.bar div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .2s}.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{flex:1;min-width:100px;background:#0e162b;border:1px solid var(--line);padding:12px;border-radius:12px}.stat strong{display:block;font-size:23px}.note{font-size:13px;color:var(--muted);line-height:1.5}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:0 15px 24px}
-@media(max-width:520px){.panel{padding:14px}.question{font-size:19px}.row button{min-width:100%}}
+.hero-tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}.hero-tags span{border:1px solid #34466e;background:#101a32;padding:7px 11px;border-radius:99px;font-size:12px;color:#d7e1ff}
+.search{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#0e162b;color:var(--text);font:inherit;margin:0 0 12px}.search:focus{outline:2px solid var(--accent);outline-offset:1px}
+.subject{min-width:0}.subject span:last-child{overflow-wrap:anywhere}.subject small{font-size:11px}
+.stat{background:linear-gradient(145deg,#111c35,#0e162b)}.panel{backdrop-filter:blur(8px)}button:disabled{opacity:.65;cursor:default;transform:none}
+@media(max-width:520px){.panel{padding:14px}.question{font-size:19px}.row button{min-width:100%}header{padding-top:20px}.hero-tags span{font-size:11px}}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">AULA DE REPASO • PERÚ</div>
-  <h1>Repasa Secundaria</h1>
-  <p>Practica desde cero, elige tu grado y curso, responde y aprende de tus errores.</p>
+  <h1>Repasa<span style="color:#7c9cff">+</span></h1>
+  <p>Tu espacio de estudio personal. Aprende a tu ritmo, practica y descubre qué temas necesitas reforzar.</p>
+  <div class="hero-tags"><span>📚 1.º a 5.º</span><span>🧠 Práctica guiada</span><span>📈 Progreso local</span></div>
 </header>
 <main>
   <section class="panel">
@@ -38,13 +43,16 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 15px 24px}
   </section>
   <section class="panel">
     <h2>2. Elige un área o curso</h2>
+    <input id="subjectSearch" class="search" type="search" placeholder="🔎 Buscar un curso…" aria-label="Buscar un curso">
     <div class="grid" id="subjects"></div>
+    <p class="note" id="subjectCount"></p>
   </section>
   <section class="panel">
     <h2>3. Configura tu práctica</h2>
     <div class="controls">
       <div class="field"><label for="level">Dificultad</label><select id="level"><option value="base">Desde cero</option><option value="medio">Intermedio</option><option value="reto">Reto</option></select></div>
       <div class="field"><label for="count">Preguntas por ronda</label><select id="count"><option>5</option><option selected>10</option><option>15</option></select></div>
+      <div class="field"><label for="mode">Modo de práctica</label><select id="mode"><option value="quiz">Examen con puntaje</option><option value="learn">Aprender con explicación</option></select></div>
     </div>
     <p class="note">Las preguntas de esta versión son una base de práctica y no un examen oficial. Los temas varían según el grado y la programación de tu colegio.</p>
     <button class="primary" id="start" style="width:100%;margin-top:10px">Comenzar práctica</button>
@@ -66,7 +74,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 15px 24px}
   </section>
   <section class="panel">
     <h2>Tu progreso en este dispositivo</h2>
-    <div class="stats"><div class="stat"><span class="muted">Rondas completadas</span><strong id="totalrounds">0</strong></div><div class="stat"><span class="muted">Respuestas correctas</span><strong id="totalcorrect">0</strong></div></div>
+    <div class="stats"><div class="stat"><span class="muted">Rondas completadas</span><strong id="totalrounds">0</strong></div><div class="stat"><span class="muted">Respuestas correctas</span><strong id="totalcorrect">0</strong></div><div class="stat"><span class="muted">Precisión total</span><strong id="accuracy">0%</strong></div></div>
     <p class="note">El progreso se guarda localmente en este navegador si el almacenamiento está habilitado. No necesitas crear una cuenta.</p>
     <button class="secondary" id="resetProgress">Borrar progreso guardado</button>
   </section>
@@ -160,20 +168,30 @@ const bank={
  ]
 };
 const icons=Object.fromEntries(subjects.map(s=>[s[1],s[0]]));
-let grade=1,subject='Matemática',questions=[],index=0,correct=0,answered=false,missed=[];
+let grade=1,subject='Matemática',questions=[],index=0,correct=0,answered=false,missed=[],totalAnswered=0;
 const $=id=>document.getElementById(id);
-function loadProgress(){try{return JSON.parse(localStorage.getItem('repasaSecundariaProgress'))||{rounds:0,correct:0}}catch(e){return {rounds:0,correct:0}}}
-function showProgress(){const p=loadProgress();$('totalrounds').textContent=p.rounds;$('totalcorrect').textContent=p.correct}
-function renderSubjects(){const box=$('subjects');box.innerHTML='';subjects.forEach(([ico,name])=>{const b=document.createElement('button');b.className='subject'+(name===subject?' active':'');b.innerHTML=`<span>${ico}</span><span>${name}<small>Repaso y ejercicios</small></span>`;b.onclick=()=>{subject=name;renderSubjects()};box.appendChild(b)})}
+function loadProgress(){try{return JSON.parse(localStorage.getItem('repasaSecundariaProgress'))||{rounds:0,correct:0,answered:0}}catch(e){return {rounds:0,correct:0,answered:0}}}
+function showProgress(){const p=loadProgress();$('totalrounds').textContent=p.rounds;$('totalcorrect').textContent=p.correct;$('accuracy').textContent=(p.answered?Math.round(p.correct/p.answered*100):0)+'%'}
+function renderSubjects(){
+ const box=$('subjects'),term=($('subjectSearch')?.value||'').trim().toLocaleLowerCase('es');
+ box.innerHTML='';let visible=0;
+ subjects.filter(([ico,name])=>name.toLocaleLowerCase('es').includes(term)).forEach(([ico,name])=>{
+  visible++;const b=document.createElement('button');b.className='subject'+(name===subject?' active':'');
+  b.innerHTML=`<span>${ico}</span><span>${name}<small>${(bank[name]||[]).length} preguntas de ejemplo</small></span>`;
+  b.onclick=()=>{subject=name;renderSubjects()};box.appendChild(b)
+ });
+ if($('subjectCount'))$('subjectCount').textContent=`${visible} curso${visible===1?'':'s'} disponible${visible===1?'':'s'}. Seleccionado: ${subject}.`;
+ if(!visible)box.innerHTML='<p class="muted">No encontramos ese curso. Prueba otra palabra.</p>';
+}
 document.querySelectorAll('.grade').forEach(b=>b.onclick=()=>{grade=+b.dataset.grade;document.querySelectorAll('.grade').forEach(x=>x.classList.toggle('active',x===b))});
 function startQuiz(){const level=$('level').value,count=+$('count').value;let pool=(bank[subject]||[]).filter(q=>q.g<=grade);if(level==='base')pool=pool.filter(q=>q.l==='base'||q.g===grade);if(level==='medio')pool=pool.filter(q=>q.l!=='reto');if(!pool.length)pool=(bank[subject]||[]).filter(q=>q.g<=grade);if(!pool.length){alert('Aún no hay suficientes preguntas de este curso en esta versión. Prueba otro curso.');return}
-questions=[];while(questions.length<Math.min(count,Math.max(pool.length,count))){questions.push(...pool.sort(()=>Math.random()-.5));if(questions.length>=count)break}questions=questions.slice(0,count);index=0;correct=0;missed=[];answered=false;$('result').classList.add('hidden');$('quiz').classList.remove('hidden');renderQuestion();$('quiz').scrollIntoView({behavior:'smooth',block:'start'})}
+pool=[...pool].sort(()=>Math.random()-.5);questions=[];while(questions.length<count){questions.push(...pool);if(!pool.length)break}questions=questions.slice(0,count);index=0;correct=0;missed=[];answered=false;$('result').classList.add('hidden');$('quiz').classList.remove('hidden');renderQuestion();$('quiz').scrollIntoView({behavior:'smooth',block:'start'})}
 function renderQuestion(){const q=questions[index];answered=false;$('qmeta').textContent=`${subject} · ${grade}.º secundaria · Pregunta ${index+1} de ${questions.length}`;$('scorelive').textContent=`Correctas: ${correct}`;$('progress').style.width=`${index/questions.length*100}%`;$('question').textContent=q.q;$('answers').innerHTML='';$('feedback').className='feedback';$('feedback').textContent='';$('next').classList.add('hidden');q.a.forEach((answer,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+'. '+answer;b.onclick=()=>choose(i,b);$('answers').appendChild(b)})}
-function choose(choice,btn){if(answered)return;answered=true;const q=questions[index];[...$('answers').children].forEach((b,i)=>{b.disabled=true;if(i===q.c)b.classList.add('correct')});const fb=$('feedback');if(choice===q.c){correct++;fb.className='feedback show good';fb.textContent='¡Correcto! '+q.e}else{btn.classList.add('wrong');fb.className='feedback show bad';fb.textContent='Todavía no. '+q.e;missed.push({q:q.q,correct:q.a[q.c]})}$('scorelive').textContent=`Correctas: ${correct}`;$('progress').style.width=`${(index+1)/questions.length*100}%`;$('next').textContent=index===questions.length-1?'Ver resultado':'Siguiente pregunta';$('next').classList.remove('hidden')}
+function choose(choice,btn){if(answered)return;answered=true;const q=questions[index];[...$('answers').children].forEach((b,i)=>{b.disabled=true;if(i===q.c)b.classList.add('correct')});const fb=$('feedback');totalAnswered++;if(choice===q.c){correct++;fb.className='feedback show good';fb.textContent='¡Correcto! '+q.e}else{btn.classList.add('wrong');fb.className='feedback show bad';fb.textContent='Todavía no. '+q.e;missed.push({q:q.q,correct:q.a[q.c]})}if($('mode').value==='learn')$('next').scrollIntoView({behavior:'smooth',block:'nearest'});$('scorelive').textContent=`Correctas: ${correct}`;$('progress').style.width=`${(index+1)/questions.length*100}%`;$('next').textContent=index===questions.length-1?'Ver resultado':'Siguiente pregunta';$('next').classList.remove('hidden')}
 function nextQuestion(){if(index<questions.length-1){index++;renderQuestion()}else finishQuiz()}
-function finishQuiz(){ $('quiz').classList.add('hidden');$('result').classList.remove('hidden');const pct=Math.round(correct/questions.length*100);$('finalscore').textContent=`${correct}/${questions.length}`;$('percent').textContent=pct+'%';$('rating').textContent=pct>=90?'¡Excelente!':pct>=70?'¡Buen trabajo!':pct>=50?'Vas avanzando':'A seguir practicando';$('summary').textContent=pct>=70?'¡Buen trabajo! Sigue practicando para reforzar lo que ya sabes.':'No te desanimes: revisa las explicaciones y vuelve a intentarlo.';$('review').innerHTML=missed.length?missed.map(m=>`<p><strong>${escapeHtml(m.q)}</strong><br>Respuesta correcta: ${escapeHtml(m.correct)}</p>`).join(''):'¡No fallaste ninguna! Prueba un nivel más difícil.';try{const p=loadProgress();p.rounds++;p.correct+=correct;localStorage.setItem('repasaSecundariaProgress',JSON.stringify(p))}catch(e){}showProgress();$('result').scrollIntoView({behavior:'smooth',block:'start'})}
+function finishQuiz(){ $('quiz').classList.add('hidden');$('result').classList.remove('hidden');const pct=Math.round(correct/questions.length*100);$('finalscore').textContent=`${correct}/${questions.length}`;$('percent').textContent=pct+'%';$('rating').textContent=pct>=90?'¡Excelente!':pct>=70?'¡Buen trabajo!':pct>=50?'Vas avanzando':'A seguir practicando';$('summary').textContent=`Curso: ${subject} · Grado: ${grade}.º. `+(pct>=70?'¡Buen trabajo! Sigue practicando para reforzar lo que ya sabes.':'No te desanimes: revisa las explicaciones y vuelve a intentarlo.');$('review').innerHTML=missed.length?missed.map(m=>`<p><strong>${escapeHtml(m.q)}</strong><br>Respuesta correcta: ${escapeHtml(m.correct)}</p>`).join(''):'¡No fallaste ninguna! Prueba un nivel más difícil.';try{const p=loadProgress();p.rounds++;p.correct+=correct;p.answered=(p.answered||0)+totalAnswered;localStorage.setItem('repasaSecundariaProgress',JSON.stringify(p))}catch(e){}showProgress();$('result').scrollIntoView({behavior:'smooth',block:'start'})}
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-$('start').onclick=startQuiz;$('next').onclick=nextQuestion;$('quit').onclick=()=>{$('quiz').classList.add('hidden')};$('again').onclick=startQuiz;$('change').onclick=()=>{ $('result').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})};$('resetProgress').onclick=()=>{if(confirm('¿Seguro que quieres borrar el progreso guardado en este dispositivo?')){localStorage.removeItem('repasaSecundariaProgress');showProgress()}};renderSubjects();showProgress();
+$('subjectSearch').addEventListener('input',renderSubjects);$('start').onclick=startQuiz;$('next').onclick=nextQuestion;$('quit').onclick=()=>{$('quiz').classList.add('hidden')};$('again').onclick=startQuiz;$('change').onclick=()=>{ $('result').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})};$('resetProgress').onclick=()=>{if(confirm('¿Seguro que quieres borrar el progreso guardado en este dispositivo?')){localStorage.removeItem('repasaSecundariaProgress');showProgress()}};renderSubjects();showProgress();
 </script>
 </body>
 </html>
