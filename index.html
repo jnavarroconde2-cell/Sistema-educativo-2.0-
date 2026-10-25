@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repasa Secundaria | 1.º a 5.º</title>
+<style>
+:root{--bg:#0b1020;--panel:#141c32;--panel2:#1c2743;--text:#f4f7ff;--muted:#aebbd6;--accent:#7c9cff;--green:#59d6a3;--red:#ff7b89;--line:#2b3858}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#18264b 0,#0b1020 55%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+header{padding:24px 16px 18px;text-align:center;border-bottom:1px solid var(--line)}header .logo{font-size:12px;letter-spacing:2px;color:#a8bbff;font-weight:800}h1{margin:8px 0;font-size:clamp(27px,6vw,42px)}header p{margin:0 auto;max-width:650px;color:var(--muted)}
+main{max-width:1000px;margin:auto;padding:18px 14px 40px}.panel{background:rgba(20,28,50,.95);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 12px 32px #0002}
+h2{font-size:20px;margin:0 0 12px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+button,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);padding:12px 14px;font-weight:700;transition:.15s}button:hover{filter:brightness(1.15);transform:translateY(-1px)}button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.grade.active,.subject.active{background:var(--accent);color:#081027;border-color:transparent}
+.subject{display:flex;align-items:center;gap:9px;text-align:left;min-height:58px}.subject span:first-child{font-size:23px}.subject small{display:block;color:inherit;opacity:.8;font-weight:500}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}.field select{width:100%;padding:12px;border-radius:10px;background:#0e162b;border:1px solid var(--line);color:var(--text)}
+.question-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}.question{font-size:21px;line-height:1.45;margin:17px 0}.answers{display:grid;gap:9px}.answer{text-align:left;font-weight:600}.answer.correct{border-color:var(--green);background:#12392f}.answer.wrong{border-color:var(--red);background:#421e2a}.feedback{padding:12px;border-radius:10px;margin-top:12px;display:none}.feedback.show{display:block}.feedback.good{background:#12392f;color:#b8ffe0}.feedback.bad{background:#421e2a;color:#ffd2d7}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row button{flex:1}.primary{background:var(--accent);color:#081027;border-color:transparent}.secondary{background:transparent}.hidden{display:none!important}.bar{height:8px;background:#0b1224;border-radius:99px;overflow:hidden;margin:10px 0}.bar div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .2s}.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{flex:1;min-width:100px;background:#0e162b;border:1px solid var(--line);padding:12px;border-radius:12px}.stat strong{display:block;font-size:23px}.note{font-size:13px;color:var(--muted);line-height:1.5}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:0 15px 24px}
+@media(max-width:520px){.panel{padding:14px}.question{font-size:19px}.row button{min-width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">AULA DE REPASO • PERÚ</div>
+  <h1>Repasa Secundaria</h1>
+  <p>Practica desde cero, elige tu grado y curso, responde y aprende de tus errores.</p>
+</header>
+<main>
+  <section class="panel">
+    <h2>1. Elige tu grado</h2>
+    <div class="grid" id="grades">
+      <button class="grade active" data-grade="1">1.º secundaria</button>
+      <button class="grade" data-grade="2">2.º secundaria</button>
+      <button class="grade" data-grade="3">3.º secundaria</button>
+      <button class="grade" data-grade="4">4.º secundaria</button>
+      <button class="grade" data-grade="5">5.º secundaria</button>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>2. Elige un área o curso</h2>
+    <div class="grid" id="subjects"></div>
+  </section>
+  <section class="panel">
+    <h2>3. Configura tu práctica</h2>
+    <div class="controls">
+      <div class="field"><label for="level">Dificultad</label><select id="level"><option value="base">Desde cero</option><option value="medio">Intermedio</option><option value="reto">Reto</option></select></div>
+      <div class="field"><label for="count">Preguntas por ronda</label><select id="count"><option>5</option><option selected>10</option><option>15</option></select></div>
+    </div>
+    <p class="note">Las preguntas de esta versión son una base de práctica y no un examen oficial. Los temas varían según el grado y la programación de tu colegio.</p>
+    <button class="primary" id="start" style="width:100%;margin-top:10px">Comenzar práctica</button>
+  </section>
+  <section class="panel hidden" id="quiz">
+    <div class="question-top"><span id="qmeta">Pregunta 1</span><span id="scorelive">Correctas: 0</span></div>
+    <div class="bar"><div id="progress"></div></div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback" role="status"></div>
+    <div class="row" style="margin-top:14px"><button class="secondary" id="quit">Salir de la práctica</button><button class="primary hidden" id="next">Siguiente pregunta</button></div>
+  </section>
+  <section class="panel hidden" id="result">
+    <h2>¡Ronda terminada!</h2>
+    <p id="summary"></p>
+    <div class="stats"><div class="stat"><span class="muted">Puntaje</span><strong id="finalscore">0/0</strong></div><div class="stat"><span class="muted">Porcentaje</span><strong id="percent">0%</strong></div><div class="stat"><span class="muted">Nivel</span><strong id="rating">—</strong></div></div>
+    <h2 style="margin-top:18px">Repasa lo aprendido</h2><div id="review" class="note"></div>
+    <div class="row" style="margin-top:16px"><button class="primary" id="again">Practicar otra vez</button><button class="secondary" id="change">Cambiar curso</button></div>
+  </section>
+  <section class="panel">
+    <h2>Tu progreso en este dispositivo</h2>
+    <div class="stats"><div class="stat"><span class="muted">Rondas completadas</span><strong id="totalrounds">0</strong></div><div class="stat"><span class="muted">Respuestas correctas</span><strong id="totalcorrect">0</strong></div></div>
+    <p class="note">El progreso se guarda localmente en este navegador si el almacenamiento está habilitado. No necesitas crear una cuenta.</p>
+    <button class="secondary" id="resetProgress">Borrar progreso guardado</button>
+  </section>
+</main>
+<footer>Hecho para repasar paso a paso. Si te equivocas, vuelve a intentarlo: aprender también es practicar.</footer>
+<script>
+const subjects=[
+ ['➗','Matemática'],['📖','Comunicación'],['🔬','Ciencia y Tecnología'],['🏛️','Historia'],['🌎','Geografía'],['🧑‍🤝‍🧑','Desarrollo Personal, Ciudadanía y Cívica'],['🇬🇧','Inglés'],['💼','Educación para el Trabajo'],['🎨','Arte y Cultura'],['🏃','Educación Física'],['🕊️','Educación Religiosa']
+];
+const bank={
+ 'Matemática':[
+  {g:1,l:'base',q:'¿Cuánto es 7 + 5?',a:['10','12','13','15'],c:1,e:'Sumar es juntar cantidades: 7 + 5 = 12.'},
+  {g:1,l:'base',q:'¿Cuánto es 3 × 4?',a:['7','10','12','14'],c:2,e:'Multiplicar 3 × 4 equivale a sumar 4 tres veces: 12.'},
+  {g:1,l:'base',q:'¿Cuál es la mitad de 18?',a:['6','8','9','12'],c:2,e:'La mitad se obtiene dividiendo entre 2: 18 ÷ 2 = 9.'},
+  {g:2,l:'base',q:'Resuelve: 24 ÷ 6 + 3.',a:['4','7','9','12'],c:1,e:'Primero división: 24 ÷ 6 = 4; luego 4 + 3 = 7.'},
+  {g:2,l:'medio',q:'Si x + 8 = 15, ¿cuánto vale x?',a:['5','6','7','8'],c:2,e:'Resta 8 a ambos lados: x = 15 − 8 = 7.'},
+  {g:3,l:'medio',q:'¿Cuál es el 20 % de 150?',a:['15','20','30','45'],c:2,e:'20 % = 0,20; 150 × 0,20 = 30.'},
+  {g:3,l:'medio',q:'¿Cuál es la pendiente de y = 2x + 3?',a:['2','3','5','−2'],c:0,e:'En y = mx + b, la pendiente es m; aquí m = 2.'},
+  {g:4,l:'medio',q:'Factoriza x² − 9.',a:['(x−9)(x+1)','(x−3)(x+3)','(x−3)²','(x+9)(x−1)'],c:1,e:'Es una diferencia de cuadrados: a² − b² = (a−b)(a+b).'},
+  {g:4,l:'reto',q:'Si 2x − 5 = 13, ¿cuánto vale x?',a:['4','8','9','18'],c:2,e:'2x = 18; divide entre 2: x = 9.'},
+  {g:5,l:'medio',q:'¿Cuál es la probabilidad de obtener cara al lanzar una moneda equilibrada?',a:['0','1/4','1/2','1'],c:2,e:'Hay dos resultados igualmente probables: cara o sello. La probabilidad es 1/2.'},
+  {g:5,l:'reto',q:'Resuelve: x² = 49. ¿Cuáles son las soluciones reales?',a:['Solo 7','Solo −7','7 y −7','49 y −49'],c:2,e:'Tanto 7² como (−7)² son 49, por eso x = ±7.'}
+ ],
+ 'Comunicación':[
+  {g:1,l:'base',q:'¿Cuál de estas palabras es un sustantivo?',a:['Correr','Hermoso','Escuela','Rápidamente'],c:2,e:'“Escuela” nombra un lugar; por eso es un sustantivo.'},
+  {g:1,l:'base',q:'¿Qué signo se usa al final de una pregunta directa?',a:['Punto','Dos puntos','Signos de interrogación','Coma'],c:2,e:'En español se usan signos de apertura y cierre: ¿ ?.'},
+  {g:2,l:'base',q:'En “La niña lee”, ¿cuál es el verbo?',a:['La','niña','lee','ninguno'],c:2,e:'“Lee” expresa la acción.'},
+  {g:2,l:'medio',q:'¿Cuál es un sinónimo de “alegre”?',a:['Contento','Enojado','Cansado','Oscuro'],c:0,e:'“Contento” tiene un significado parecido a “alegre”.'},
+  {g:3,l:'medio',q:'¿Cuál es la idea principal de un texto?',a:['Un detalle menor','El mensaje central','La última palabra','El título siempre'],c:1,e:'La idea principal expresa lo más importante del texto.'},
+  {g:4,l:'medio',q:'¿Qué figura literaria compara usando “como” o “parece”?',a:['Hipérbole','Símil','Personificación','Anáfora'],c:1,e:'El símil establece una comparación explícita, por ejemplo: “fuerte como un roble”.'},
+  {g:5,l:'medio',q:'¿Qué busca principalmente un texto argumentativo?',a:['Defender una postura con razones','Solo narrar hechos ficticios','Dar instrucciones de cocina','Enumerar personajes'],c:0,e:'Un texto argumentativo presenta una tesis y razones para sostenerla.'}
+ ],
+ 'Ciencia y Tecnología':[
+  {g:1,l:'base',q:'¿Qué órgano bombea la sangre?',a:['Pulmón','Estómago','Corazón','Riñón'],c:2,e:'El corazón impulsa la sangre por el sistema circulatorio.'},
+  {g:1,l:'base',q:'¿Cuál es una fuente natural de luz?',a:['La Luna','El Sol','Un espejo','Una piedra'],c:1,e:'El Sol emite luz propia. La Luna refleja la luz solar.'},
+  {g:2,l:'base',q:'¿Qué necesitan las plantas para realizar la fotosíntesis?',a:['Luz, agua y dióxido de carbono','Solo arena','Solo oxígeno','Sal y aceite'],c:0,e:'Usan luz, agua y dióxido de carbono para producir azúcares y liberar oxígeno.'},
+  {g:3,l:'medio',q:'¿Cuál es la unidad de fuerza en el Sistema Internacional?',a:['Julio','Vatio','Newton','Metro'],c:2,e:'La fuerza se mide en newtons (N).'},
+  {g:4,l:'medio',q:'¿Qué partícula tiene carga eléctrica negativa?',a:['Protón','Neutrón','Electrón','Núcleo completo'],c:2,e:'El electrón tiene carga negativa; el protón, positiva; el neutrón, neutra.'},
+  {g:5,l:'medio',q:'¿Qué molécula contiene la mayor parte de la información genética?',a:['ADN','Agua','Glucosa','Oxígeno'],c:0,e:'El ADN almacena la información genética de los seres vivos.'}
+ ],
+ 'Historia':[
+  {g:1,l:'base',q:'¿Qué estudia principalmente la historia?',a:['Los seres vivos','Las sociedades humanas del pasado','Solo los planetas','Las operaciones matemáticas'],c:1,e:'La historia estudia los procesos y cambios de las sociedades humanas a través del tiempo.'},
+  {g:2,l:'base',q:'¿Qué civilización construyó Machu Picchu?',a:['Moche','Inca','Chimú','Nazca'],c:1,e:'Machu Picchu es una importante obra de la civilización inca.'},
+  {g:3,l:'medio',q:'¿En qué año proclamó Perú su independencia José de San Martín?',a:['1780','1821','1879','1921'],c:1,e:'La proclamación de la independencia del Perú ocurrió el 28 de julio de 1821.'},
+  {g:4,l:'medio',q:'¿Qué proceso comenzó en Gran Bretaña en el siglo XVIII?',a:['Revolución Industrial','Guerra del Pacífico','Conquista del Tahuantinsuyo','Guerra Fría'],c:0,e:'La Revolución Industrial comenzó en Gran Bretaña en el siglo XVIII.'},
+  {g:5,l:'medio',q:'¿Qué organización internacional se fundó en 1945 para promover la paz y cooperación?',a:['ONU','OTAN (1949)','Unión Europea (1993)','APEC (1989)'],c:0,e:'La Organización de las Naciones Unidas se fundó en 1945.'}
+ ],
+ 'Geografía':[
+  {g:1,l:'base',q:'¿En qué continente se encuentra el Perú?',a:['Europa','Asia','América del Sur','África'],c:2,e:'Perú se encuentra en la parte occidental de América del Sur.'},
+  {g:2,l:'base',q:'¿Cuál es el océano que baña la costa peruana?',a:['Atlántico','Pacífico','Índico','Ártico'],c:1,e:'La costa peruana limita con el océano Pacífico.'},
+  {g:3,l:'medio',q:'¿Cuál es la capital del Perú?',a:['Cusco','Arequipa','Lima','Iquitos'],c:2,e:'La capital del Perú es Lima.'},
+  {g:4,l:'medio',q:'¿Qué línea imaginaria divide la Tierra en hemisferio norte y sur?',a:['Meridiano de Greenwich','Trópico de Cáncer','Ecuador','Círculo polar'],c:2,e:'El ecuador se encuentra a 0° de latitud.'},
+  {g:5,l:'medio',q:'¿Qué representa la escala de un mapa?',a:['La relación entre distancia del mapa y distancia real','La temperatura','La población exacta','La altura de las nubes'],c:0,e:'La escala indica cuánto se redujeron las distancias reales en el mapa.'}
+ ],
+ 'Desarrollo Personal, Ciudadanía y Cívica':[
+  {g:1,l:'base',q:'¿Qué es la empatía?',a:['Ignorar a los demás','Intentar comprender cómo se siente otra persona','Ganar todas las discusiones','Obedecer sin pensar'],c:1,e:'La empatía consiste en intentar comprender las emociones y perspectivas de otras personas.'},
+  {g:2,l:'base',q:'¿Cuál es una forma respetuosa de resolver un conflicto?',a:['Insultar','Escuchar y dialogar','Amenazar','Difundir rumores'],c:1,e:'Escuchar, dialogar y buscar acuerdos ayuda a resolver conflictos pacíficamente.'},
+  {g:3,l:'medio',q:'¿Qué significa que todas las personas tienen derechos?',a:['Que solo algunos merecen respeto','Que la dignidad y los derechos corresponden a todas las personas','Que nadie tiene responsabilidades','Que las reglas no existen'],c:1,e:'Los derechos humanos corresponden a todas las personas por su dignidad.'},
+  {g:4,l:'medio',q:'¿Cuál es una responsabilidad ciudadana?',a:['Cuidar los espacios públicos','Dañar bienes comunes','Discriminar a otros','Evitar toda participación'],c:0,e:'Cuidar los espacios públicos contribuye al bienestar común.'},
+  {g:5,l:'medio',q:'¿Para qué sirve la participación democrática?',a:['Para que nadie opine','Para participar en decisiones colectivas y expresar opiniones','Para eliminar los derechos','Para impedir acuerdos'],c:1,e:'La participación democrática permite expresar opiniones e intervenir en decisiones comunes.'}
+ ],
+ 'Inglés':[
+  {g:1,l:'base',q:'What does “hello” mean in Spanish?',a:['Adiós','Hola','Gracias','Por favor'],c:1,e:'“Hello” significa “hola”.'},
+  {g:1,l:'base',q:'Complete: “I ___ a student.”',a:['am','is','are','be'],c:0,e:'Con “I” se usa “am”: I am a student.'},
+  {g:2,l:'base',q:'What is the plural of “child”?',a:['Childs','Childes','Children','Childrens'],c:2,e:'El plural irregular de “child” es “children”.'},
+  {g:3,l:'medio',q:'Choose the correct past tense: “Yesterday, I ___ football.”',a:['play','played','playing','plays'],c:1,e:'Para el pasado simple regular de “play”, se añade -ed: played.'},
+  {g:4,l:'medio',q:'Complete: “She has lived here ___ 2020.”',a:['for','since','during','from'],c:1,e:'“Since” se usa con el punto de inicio: since 2020.'},
+  {g:5,l:'medio',q:'Choose the correct sentence.',a:['He don’t like tea.','He doesn’t likes tea.','He doesn’t like tea.','He not like tea.'],c:2,e:'Con he/she/it se usa “doesn’t” + verbo en forma base.'}
+ ],
+ 'Educación para el Trabajo':[
+  {g:1,l:'base',q:'¿Qué es una meta?',a:['Un objetivo que se busca alcanzar','Un problema sin solución','Un gasto obligatorio','Un objeto perdido'],c:0,e:'Una meta es un resultado que una persona se propone alcanzar.'},
+  {g:2,l:'base',q:'¿Para qué sirve un presupuesto?',a:['Para planificar ingresos y gastos','Para adivinar el futuro','Para borrar deudas automáticamente','Para evitar sumar'],c:0,e:'Un presupuesto ayuda a organizar el dinero disponible y los gastos.'},
+  {g:3,l:'medio',q:'¿Qué es un prototipo?',a:['Una primera versión para probar una idea','El producto siempre definitivo','Un anuncio publicitario únicamente','Una factura'],c:0,e:'Un prototipo permite probar y mejorar una solución antes de finalizarla.'},
+  {g:4,l:'medio',q:'¿Qué es una necesidad del cliente?',a:['Un problema o deseo que busca resolver','Una decoración sin propósito','Un gasto del competidor','Una regla gramatical'],c:0,e:'Comprender las necesidades ayuda a diseñar productos o servicios útiles.'},
+  {g:5,l:'medio',q:'¿Qué significa validar una idea de negocio?',a:['Probarla con posibles usuarios y recoger evidencia','Asumir que funcionará','Copiarla sin investigar','Gastar todo el presupuesto primero'],c:0,e:'Validar implica comprobar supuestos con usuarios y datos reales.'}
+ ],
+ 'Arte y Cultura':[
+  {g:1,l:'base',q:'¿Cuáles son algunos elementos básicos del lenguaje visual?',a:['Línea, forma y color','Solo números','Solo sonidos','Días y meses'],c:0,e:'La línea, la forma, el color y la textura son elementos visuales.'},
+  {g:2,l:'base',q:'¿Qué es el patrimonio cultural?',a:['Bienes y expresiones heredados que una comunidad valora','Solo edificios nuevos','Únicamente dinero','Cualquier objeto desechable'],c:0,e:'El patrimonio cultural incluye bienes, conocimientos y expresiones valorados por una comunidad.'},
+  {g:3,l:'medio',q:'¿Qué es el contraste en una composición?',a:['Diferencia notable entre elementos','Repetir todo exactamente','Eliminar toda variedad','Usar siempre un solo tono'],c:0,e:'El contraste crea diferencias visuales, por ejemplo entre claro y oscuro.'}
+ ],
+ 'Educación Física':[
+  {g:1,l:'base',q:'¿Por qué conviene calentar antes de hacer ejercicio?',a:['Para preparar el cuerpo gradualmente','Para cansarse antes','Para evitar beber agua','Para dejar de respirar rápido'],c:0,e:'El calentamiento prepara músculos y sistema cardiovascular para la actividad.'},
+  {g:2,l:'base',q:'¿Qué ayuda a mantener la hidratación durante el ejercicio?',a:['Beber agua según la necesidad','No beber nunca','Tomar solo bebidas energéticas','Hacer ejercicio con fiebre'],c:0,e:'El agua ayuda a reponer líquidos; la necesidad depende de duración, clima e intensidad.'},
+  {g:3,l:'medio',q:'¿Qué capacidad permite mantener un esfuerzo físico durante más tiempo?',a:['Resistencia','Solo flexibilidad','Equilibrio estático únicamente','Precisión manual'],c:0,e:'La resistencia ayuda a sostener una actividad física durante un periodo prolongado.'}
+ ],
+ 'Educación Religiosa':[
+  {g:1,l:'base',q:'¿Qué valor promueve tratar a las personas con consideración?',a:['Respeto','Burla','Envidia','Desprecio'],c:0,e:'El respeto reconoce la dignidad de las personas y sus diferencias.'},
+  {g:2,l:'base',q:'¿Qué acción favorece la convivencia entre personas con distintas creencias?',a:['Dialogar con respeto','Imponer una creencia','Burlarse de otros','Prohibir toda conversación'],c:0,e:'El diálogo respetuoso favorece la convivencia y la comprensión mutua.'},
+  {g:3,l:'medio',q:'¿Qué es la solidaridad?',a:['Apoyar a otros y contribuir al bien común','Pensar solo en uno mismo','Rechazar toda ayuda','Competir siempre'],c:0,e:'La solidaridad es apoyar a quienes lo necesitan y colaborar por el bien común.'}
+ ]
+};
+const icons=Object.fromEntries(subjects.map(s=>[s[1],s[0]]));
+let grade=1,subject='Matemática',questions=[],index=0,correct=0,answered=false,missed=[];
+const $=id=>document.getElementById(id);
+function loadProgress(){try{return JSON.parse(localStorage.getItem('repasaSecundariaProgress'))||{rounds:0,correct:0}}catch(e){return {rounds:0,correct:0}}}
+function showProgress(){const p=loadProgress();$('totalrounds').textContent=p.rounds;$('totalcorrect').textContent=p.correct}
+function renderSubjects(){const box=$('subjects');box.innerHTML='';subjects.forEach(([ico,name])=>{const b=document.createElement('button');b.className='subject'+(name===subject?' active':'');b.innerHTML=`<span>${ico}</span><span>${name}<small>Repaso y ejercicios</small></span>`;b.onclick=()=>{subject=name;renderSubjects()};box.appendChild(b)})}
+document.querySelectorAll('.grade').forEach(b=>b.onclick=()=>{grade=+b.dataset.grade;document.querySelectorAll('.grade').forEach(x=>x.classList.toggle('active',x===b))});
+function startQuiz(){const level=$('level').value,count=+$('count').value;let pool=(bank[subject]||[]).filter(q=>q.g<=grade);if(level==='base')pool=pool.filter(q=>q.l==='base'||q.g===grade);if(level==='medio')pool=pool.filter(q=>q.l!=='reto');if(!pool.length)pool=(bank[subject]||[]).filter(q=>q.g<=grade);if(!pool.length){alert('Aún no hay suficientes preguntas de este curso en esta versión. Prueba otro curso.');return}
+questions=[];while(questions.length<Math.min(count,Math.max(pool.length,count))){questions.push(...pool.sort(()=>Math.random()-.5));if(questions.length>=count)break}questions=questions.slice(0,count);index=0;correct=0;missed=[];answered=false;$('result').classList.add('hidden');$('quiz').classList.remove('hidden');renderQuestion();$('quiz').scrollIntoView({behavior:'smooth',block:'start'})}
+function renderQuestion(){const q=questions[index];answered=false;$('qmeta').textContent=`${subject} · ${grade}.º secundaria · Pregunta ${index+1} de ${questions.length}`;$('scorelive').textContent=`Correctas: ${correct}`;$('progress').style.width=`${index/questions.length*100}%`;$('question').textContent=q.q;$('answers').innerHTML='';$('feedback').className='feedback';$('feedback').textContent='';$('next').classList.add('hidden');q.a.forEach((answer,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+'. '+answer;b.onclick=()=>choose(i,b);$('answers').appendChild(b)})}
+function choose(choice,btn){if(answered)return;answered=true;const q=questions[index];[...$('answers').children].forEach((b,i)=>{b.disabled=true;if(i===q.c)b.classList.add('correct')});const fb=$('feedback');if(choice===q.c){correct++;fb.className='feedback show good';fb.textContent='¡Correcto! '+q.e}else{btn.classList.add('wrong');fb.className='feedback show bad';fb.textContent='Todavía no. '+q.e;missed.push({q:q.q,correct:q.a[q.c]})}$('scorelive').textContent=`Correctas: ${correct}`;$('progress').style.width=`${(index+1)/questions.length*100}%`;$('next').textContent=index===questions.length-1?'Ver resultado':'Siguiente pregunta';$('next').classList.remove('hidden')}
+function nextQuestion(){if(index<questions.length-1){index++;renderQuestion()}else finishQuiz()}
+function finishQuiz(){ $('quiz').classList.add('hidden');$('result').classList.remove('hidden');const pct=Math.round(correct/questions.length*100);$('finalscore').textContent=`${correct}/${questions.length}`;$('percent').textContent=pct+'%';$('rating').textContent=pct>=90?'¡Excelente!':pct>=70?'¡Buen trabajo!':pct>=50?'Vas avanzando':'A seguir practicando';$('summary').textContent=pct>=70?'¡Buen trabajo! Sigue practicando para reforzar lo que ya sabes.':'No te desanimes: revisa las explicaciones y vuelve a intentarlo.';$('review').innerHTML=missed.length?missed.map(m=>`<p><strong>${escapeHtml(m.q)}</strong><br>Respuesta correcta: ${escapeHtml(m.correct)}</p>`).join(''):'¡No fallaste ninguna! Prueba un nivel más difícil.';try{const p=loadProgress();p.rounds++;p.correct+=correct;localStorage.setItem('repasaSecundariaProgress',JSON.stringify(p))}catch(e){}showProgress();$('result').scrollIntoView({behavior:'smooth',block:'start'})}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('start').onclick=startQuiz;$('next').onclick=nextQuestion;$('quit').onclick=()=>{$('quiz').classList.add('hidden')};$('again').onclick=startQuiz;$('change').onclick=()=>{ $('result').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})};$('resetProgress').onclick=()=>{if(confirm('¿Seguro que quieres borrar el progreso guardado en este dispositivo?')){localStorage.removeItem('repasaSecundariaProgress');showProgress()}};renderSubjects();showProgress();
+</script>
+</body>
+</html>
